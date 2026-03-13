@@ -2,8 +2,10 @@
 
 :root {
   --background-color: #141c28;
-  --background-linear: linear-gradient(to bottom, #222832dc, #141c28);
+  --background-linear: linear-gradient(to bottom, #717d9728, #141c28);
   --glass-white: rgba(255, 255, 255, 0.1);
+  --text-primary: #ffffff;
+  --accent-color: #ffcc00;
 }
 
 * {
@@ -15,11 +17,11 @@
 body {
   font-family: "Poppins", sans-serif;
   background-color: var(--background-color);
-  color: white;
+  color: var(--text-primary);
   overflow-x: hidden;
 }
 
-/* HEADER */
+/* --- HEADER & NAVIGATION --- */
 .header-container {
   background: var(--background-linear);
   min-height: 120px;
@@ -35,23 +37,21 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 20px 5%;
-  flex-wrap: wrap;
-  gap: 20px;
+  position: relative;
 }
 
 .nav-content a {
   text-decoration: none;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
-/* ACTIONS (SEARCH + LINKS) */
-.actions-container {
+#actions-container {
   display: flex;
   align-items: center;
   gap: 30px;
-  flex-wrap: wrap;
 }
 
+/* --- SEARCH BOX --- */
 .search-box {
   position: relative;
   display: flex;
@@ -83,59 +83,67 @@ body {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-.nav-links {
+/* --- NAV LINKS --- */
+#nav-links {
   display: flex;
   gap: 30px;
   list-style: none;
 }
 
-.nav-links a {
+#nav-links a {
   font-size: 1.1rem;
   font-weight: 500;
   transition: opacity 0.3s;
 }
 
-.nav-links a:hover {
+#nav-links a:hover {
   opacity: 0.7;
 }
 
-.nav-links a.active {
-    color: #ffcc00; /* Ou a cor que você preferir */
-    border-bottom: 2px solid #ffcc00;
+#nav-links a.active {
+  color: var(--accent-color);
+  border-bottom: 2px solid var(--accent-color);
 }
 
-/* MAIN CONTENT */
+/* --- MENU BUTTON (TOGGLE) --- */
+#btn-menu {
+  display: none; /* Escondido no Desktop */
+  z-index: 10005;
+}
+
+#btn-menu button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+/* --- MAIN CONTENT --- */
 .card-container {
-  background-image: url("/assets/background-main.png");
   min-height: 100vh;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-attachment: fixed;
   padding-bottom: 50px;
 }
 
 .card-container h2 {
   padding: 40px 5%;
-  font-size: clamp(1.5rem, 5vw, 3rem); /* Fonte que diminui sozinha */
+  font-size: clamp(1.5rem, 5vw, 3rem);
   text-align: center;
 }
 
 .movie-grid {
   display: grid;
   gap: 30px;
-  /* Grid responsivo que nunca quebra */
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   padding: 0 5%;
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* MOVIE CARD (Para o seu JS) */
 .movie-card {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .movie-grid img {
@@ -157,37 +165,16 @@ body {
   margin-top: 5px;
 }
 
-/* MEDIA QUERIES */
-@media (max-width: 850px) {
-  .nav-content {
-    justify-content: center;
-    text-align: center;
-  }
-  
-  .actions-container {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .search-box {
-      width: 100%;
-      justify-content: center;
-  }
-
-  .search-box input {
-      max-width: 100%;
-  }
-}
-
+/* --- MODAL --- */
 .modal-overlay {
-  display: none; /* Começa escondido */
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.85); /* Fundo preto transparente */
-  backdrop-filter: blur(5px); /* Efeito de desfoque no fundo (muito profissional!) */
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
   z-index: 1000;
   justify-content: center;
   align-items: center;
@@ -195,19 +182,17 @@ body {
 }
 
 .modal-content {
-  background-color: #1c2531; /* Um tom azulado escuro para combinar com o tema */
+  background-color: #1c2531;
   color: white;
   width: 90%;
   max-width: 800px;
   border-radius: 15px;
   position: relative;
   padding: 30px;
-  max-height: 90vh; /* Não deixa o modal ser maior que a tela */
-  overflow-y: auto; /* Adiciona scroll se a sinopse for muito longa */
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-/* O botão de fechar */
 #close-modal {
   position: absolute;
   top: 15px;
@@ -217,63 +202,92 @@ body {
   color: white;
   font-size: 24px;
   cursor: pointer;
-  transition: 0.3s;
 }
-
-#close-modal:hover { transform: scale(1.2); color: #ffcc00; }
 
 .modal-header {
   display: flex;
-  gap: 30px; /* Espaço entre a imagem e o texto */
+  gap: 30px;
   align-items: flex-start;
 }
-
 .modal-header img {
-  width: 250px; /* Tamanho fixo para o poster no desktop */
+  width: 250px;
   border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
-
 .modal-info {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
-
 .modal-info h2 {
   font-size: 2rem;
-  color: #ffcc00; /* Cor de destaque para o título */
+  color: var(--accent-color);
 }
-
-.modal-info p {
-  line-height: 1.6;
-  font-weight: 300;
-}
-
 .modal-info strong {
-  color: #00d4ff; /* Cor para os rótulos: Sinopse, Duração... */
+  color: #00d4ff;
 }
 
-/* --- RESPONSIVIDADE (Mobile) --- */
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 850px) {
+  #btn-menu {
+    display: block;
+  }
+
+  #menu-bar {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: -100%; /* Escondido */
+    height: 100vh;
+    width: 330px;
+    background-color: var(--background-color);
+    z-index: 10002;
+    border-radius: 25px 0 0 25px;
+    padding: 80px 30px;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    transition: right 0.5s ease-in-out;
+  }
+
+  #menu-bar.show {
+    right: 0;
+  }
+
+  #actions-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 40px;
+    width: 100%;
+  }
+
+  #nav-links {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  #nav-links a {
+    font-size: 1.8rem;
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--glass-white);
+  }
+
+  .search-box {
+    width: 100%;
+  }
+  .search-box input {
+    min-width: 100%;
+  }
+}
+
 @media (max-width: 600px) {
   .modal-header {
-    flex-direction: column; /* No celular, a imagem fica em cima do texto */
+    flex-direction: column;
     align-items: center;
     text-align: center;
   }
-  
   .modal-header img {
-    width: 180px; /* Imagem um pouco menor no celular */
-  }
-}
-
-@media (max-width: 480px) {
-  .nav-links {
-    gap: 20px;
-  }
-  
-  .movie-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
+    width: 180px;
   }
 }

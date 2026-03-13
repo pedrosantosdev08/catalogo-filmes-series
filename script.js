@@ -31,8 +31,6 @@ async function searchMedia(query) {
     loadContent(currentType);
     return;
   }
-  if (query.length < 1) return;
-
   const url = `https://api.themoviedb.org/3/search/${currentType}?query=${encodeURIComponent(query)}&language=pt-BR`;
 
   try {
@@ -69,15 +67,39 @@ function renderGrid(list) {
 }
 
 async function loadModal(id, type) {
-  const url = `https://api.themoviedb.org/3/${type}/${id}?language=pt-BR`;
+  const url = `https://api.themoviedb.org/3/${type}/${id}?language=pt-BR&append_to_response=watch/providers`;
 
   try {
     const response = await fetch(url, options);
     const data = await response.json();
-
     const modalBody = document.querySelector("#modal-body");
 
-    // 1. Criamos a estrutura básica (Header e Info)
+    // Lógica corrigida para os Streamings (Provedores)
+    const providers = data["watch/providers"]?.results?.BR?.flatrate;
+    let providersHtml = "";
+
+    if (providers && providers.length > 0) {
+      providersHtml = `
+        <div class="providers-container">
+          <p><strong>Disponível em:</strong></p>
+          <div class="providers-list">
+            ${providers
+              .map(
+                (p) => `
+              <div class="provider-circle">
+                <img src="https://image.tmdb.org/t/p/w154${p.logo_path}" 
+                     title="${p.provider_name}" 
+                     alt="${p.provider_name}" 
+                     class="provider-logo">
+              </div>
+            `,
+              )
+              .join("")}
+          </div>
+        </div>
+      `;
+    }
+
     let htmlContent = `
         <div class="modal-header">
             <img src="https://image.tmdb.org/t/p/w500${data.poster_path}" alt="${data.title || data.name}">
@@ -86,35 +108,27 @@ async function loadModal(id, type) {
                 <p><strong>Sinopse:</strong> ${data.overview || "Sem sinopse disponível."}</p>
                 <p><strong>Duração:</strong> ${data.runtime || (data.episode_run_time ? data.episode_run_time[0] : "--")} min</p>
                 <p><strong>Nota:</strong> ⭐ ${data.vote_average.toFixed(1)}</p>
+                ${providersHtml} 
             </div>
         </div>
     `;
 
-    // 2. Verificamos se é uma série ('tv') e se existem temporadas
     if (type === "tv" && data.seasons) {
       htmlContent += `<div class="seasons-container"><h3>Temporadas</h3><div class="seasons-list">`;
-
-      // Mapeamos as temporadas para criar os cards/ícones
       data.seasons.forEach((season) => {
-        // Ignoramos a "Temporada 0" (Especiais) se preferir
         if (season.season_number > 0) {
           htmlContent += `
-                    <div class="season-item">
-                    
-                          <span>${season.name} - </span>
-                          <small>${season.episode_count} episódios</small>
-                                                
-                    </div>
-                `;
+              <div class="season-item">
+                   <span>${season.name} - </span>
+                   <small>${season.episode_count} episódios</small>
+              </div>
+          `;
         }
       });
-
       htmlContent += `</div></div>`;
     }
 
-    // 3. Inserimos tudo no modal de uma vez
     modalBody.innerHTML = htmlContent;
-
     document.querySelector("#modal-overlay").style.display = "flex";
   } catch (err) {
     console.error("Erro ao carregar detalhes:", err);
@@ -122,11 +136,9 @@ async function loadModal(id, type) {
 }
 
 function closeModal() {
-  const modalOverlay = document.querySelector(".modal-overlay");
-  modalOverlay.style.display = "none";
+  document.querySelector("#modal-overlay").style.display = "none";
 }
 
-// Eventos de Clique no Menu
 document.querySelectorAll(".nav-links a").forEach((link) => {
   link.addEventListener("click", (e) => {
     e.preventDefault();
@@ -136,11 +148,24 @@ document.querySelectorAll(".nav-links a").forEach((link) => {
   });
 });
 
-// Evento de Busca com Debounce
 document.querySelector(".search-box input").addEventListener("input", (e) => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => searchMedia(e.target.value), 300);
 });
 
-// Inicialização
 loadContent("movie");
+
+const btn = document.querySelector("#btn-menu");
+const menuBar = document.getElementById("menu-bar");
+
+const icone = btn.querySelector("i");
+
+btn.addEventListener("click", () => {
+  menuBar.classList.toggle("show");
+
+  if (icone.classList.contains("fa-bars")) {
+    icone.classList.replace("fa-bars", "fa-xmark");
+  } else {
+    icone.classList.replace("fa-xmark", "fa-bars");
+  }
+});
