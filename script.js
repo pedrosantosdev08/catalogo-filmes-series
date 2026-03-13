@@ -31,7 +31,7 @@ async function searchMedia(query) {
     loadContent(currentType);
     return;
   }
-  if (query.length < 3) return;
+  if (query.length < 1) return;
 
   const url = `https://api.themoviedb.org/3/search/${currentType}?query=${encodeURIComponent(query)}&language=pt-BR`;
 
@@ -69,38 +69,61 @@ function renderGrid(list) {
 }
 
 async function loadModal(id, type) {
-  // Usamos o type para a URL ficar dinâmica (movie ou tv)
   const url = `https://api.themoviedb.org/3/${type}/${id}?language=pt-BR`;
 
   try {
     const response = await fetch(url, options);
     const data = await response.json();
 
-    // Em vez de .map(), pegamos os elementos do Modal e preenchemos:
     const modalBody = document.querySelector("#modal-body");
 
-    modalBody.innerHTML = `
-            <div class="modal-header">
-                <img src="https://image.tmdb.org/t/p/w500${data.poster_path}" alt="${data.title || data.name}">
-                <div class="modal-info">
-                    <h2>${data.title || data.name}</h2>
-                    <p><strong>Sinopse:</strong> ${data.overview}</p>
-                    <p><strong>Duração:</strong> ${data.runtime || data.episode_run_time[0]} min</p>
-                    <p><strong>Nota:</strong> ⭐ ${data.vote_average.toFixed(1)}</p>
-                </div>
+    // 1. Criamos a estrutura básica (Header e Info)
+    let htmlContent = `
+        <div class="modal-header">
+            <img src="https://image.tmdb.org/t/p/w500${data.poster_path}" alt="${data.title || data.name}">
+            <div class="modal-info">
+                <h2>${data.title || data.name}</h2>
+                <p><strong>Sinopse:</strong> ${data.overview || "Sem sinopse disponível."}</p>
+                <p><strong>Duração:</strong> ${data.runtime || (data.episode_run_time ? data.episode_run_time[0] : "--")} min</p>
+                <p><strong>Nota:</strong> ⭐ ${data.vote_average.toFixed(1)}</p>
             </div>
-        `;
+        </div>
+    `;
 
-    // Aqui você daria o comando para o modal aparecer (mudar o CSS)
+    // 2. Verificamos se é uma série ('tv') e se existem temporadas
+    if (type === "tv" && data.seasons) {
+      htmlContent += `<div class="seasons-container"><h3>Temporadas</h3><div class="seasons-list">`;
+
+      // Mapeamos as temporadas para criar os cards/ícones
+      data.seasons.forEach((season) => {
+        // Ignoramos a "Temporada 0" (Especiais) se preferir
+        if (season.season_number > 0) {
+          htmlContent += `
+                    <div class="season-item">
+                    
+                          <span>${season.name} - </span>
+                          <small>${season.episode_count} episódios</small>
+                                                
+                    </div>
+                `;
+        }
+      });
+
+      htmlContent += `</div></div>`;
+    }
+
+    // 3. Inserimos tudo no modal de uma vez
+    modalBody.innerHTML = htmlContent;
+
     document.querySelector("#modal-overlay").style.display = "flex";
   } catch (err) {
     console.error("Erro ao carregar detalhes:", err);
   }
 }
 
-function closeModal(){
-    const modalOverlay = document.querySelector(".modal-overlay");
-    modalOverlay.style.display = 'none'
+function closeModal() {
+  const modalOverlay = document.querySelector(".modal-overlay");
+  modalOverlay.style.display = "none";
 }
 
 // Eventos de Clique no Menu
