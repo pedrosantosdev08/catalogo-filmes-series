@@ -1,0 +1,279 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap");
+
+:root {
+  --background-color: #141c28;
+  --background-linear: linear-gradient(to bottom, #222832dc, #141c28);
+  --glass-white: rgba(255, 255, 255, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: var(--background-color);
+  color: white;
+  overflow-x: hidden;
+}
+
+/* HEADER */
+.header-container {
+  background: var(--background-linear);
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+}
+
+.nav-content {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 5%;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.nav-content a {
+  text-decoration: none;
+  color: #ffffff;
+}
+
+/* ACTIONS (SEARCH + LINKS) */
+.actions-container {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-box i {
+  position: absolute;
+  left: 15px;
+  color: #888;
+  pointer-events: none;
+}
+
+.search-box input {
+  padding: 0 20px 0 45px;
+  width: 100%;
+  min-width: 280px;
+  max-width: 500px;
+  height: 50px;
+  border-radius: 25px;
+  border: none;
+  background-color: var(--glass-white);
+  color: white;
+  outline: none;
+  transition: 0.3s;
+}
+
+.search-box input:focus {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-links {
+  display: flex;
+  gap: 30px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: opacity 0.3s;
+}
+
+.nav-links a:hover {
+  opacity: 0.7;
+}
+
+.nav-links a.active {
+    color: #ffcc00; /* Ou a cor que você preferir */
+    border-bottom: 2px solid #ffcc00;
+}
+
+/* MAIN CONTENT */
+.card-container {
+  background-image: url("/assets/background-main.png");
+  min-height: 100vh;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  padding-bottom: 50px;
+}
+
+.card-container h2 {
+  padding: 40px 5%;
+  font-size: clamp(1.5rem, 5vw, 3rem); /* Fonte que diminui sozinha */
+  text-align: center;
+}
+
+.movie-grid {
+  display: grid;
+  gap: 30px;
+  /* Grid responsivo que nunca quebra */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  padding: 0 5%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* MOVIE CARD (Para o seu JS) */
+.movie-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.movie-grid img {
+  width: 100%;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+  border-radius: 12px;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+}
+
+.movie-grid img:hover {
+  transform: scale(1.05);
+}
+
+.tittle-movie {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+/* MEDIA QUERIES */
+@media (max-width: 850px) {
+  .nav-content {
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .actions-container {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .search-box {
+      width: 100%;
+      justify-content: center;
+  }
+
+  .search-box input {
+      max-width: 100%;
+  }
+}
+
+.modal-overlay {
+  display: none; /* Começa escondido */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85); /* Fundo preto transparente */
+  backdrop-filter: blur(5px); /* Efeito de desfoque no fundo (muito profissional!) */
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.modal-content {
+  background-color: #1c2531; /* Um tom azulado escuro para combinar com o tema */
+  color: white;
+  width: 90%;
+  max-width: 800px;
+  border-radius: 15px;
+  position: relative;
+  padding: 30px;
+  max-height: 90vh; /* Não deixa o modal ser maior que a tela */
+  overflow-y: auto; /* Adiciona scroll se a sinopse for muito longa */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* O botão de fechar */
+#close-modal {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#close-modal:hover { transform: scale(1.2); color: #ffcc00; }
+
+.modal-header {
+  display: flex;
+  gap: 30px; /* Espaço entre a imagem e o texto */
+  align-items: flex-start;
+}
+
+.modal-header img {
+  width: 250px; /* Tamanho fixo para o poster no desktop */
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-info {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.modal-info h2 {
+  font-size: 2rem;
+  color: #ffcc00; /* Cor de destaque para o título */
+}
+
+.modal-info p {
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.modal-info strong {
+  color: #00d4ff; /* Cor para os rótulos: Sinopse, Duração... */
+}
+
+/* --- RESPONSIVIDADE (Mobile) --- */
+@media (max-width: 600px) {
+  .modal-header {
+    flex-direction: column; /* No celular, a imagem fica em cima do texto */
+    align-items: center;
+    text-align: center;
+  }
+  
+  .modal-header img {
+    width: 180px; /* Imagem um pouco menor no celular */
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-links {
+    gap: 20px;
+  }
+  
+  .movie-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+  }
+}
