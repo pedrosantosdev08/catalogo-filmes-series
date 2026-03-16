@@ -7,6 +7,21 @@ const options = {
   },
 };
 
+const btn = document.querySelector("#btn-menu");
+const menuBar = document.getElementById("menu-bar");
+
+const icone = btn.querySelector("i");
+
+btn.addEventListener("click", () => {
+  menuBar.classList.toggle("show");
+
+  if (icone.classList.contains("fa-bars")) {
+    icone.classList.replace("fa-bars", "fa-xmark");
+  } else {
+    icone.classList.replace("fa-xmark", "fa-bars");
+  }
+});
+
 let currentType = "movie";
 let searchTimeout;
 
@@ -74,7 +89,7 @@ async function loadModal(id, type) {
     const data = await response.json();
     const modalBody = document.querySelector("#modal-body");
 
-    // Lógica corrigida para os Streamings (Provedores)
+    // Lógica dos Provedores (Streamings)
     const providers = data["watch/providers"]?.results?.BR?.flatrate;
     let providersHtml = "";
 
@@ -83,49 +98,51 @@ async function loadModal(id, type) {
         <div class="providers-container">
           <p><strong>Disponível em:</strong></p>
           <div class="providers-list">
-            ${providers
-              .map(
-                (p) => `
-              <div class="provider-circle">
+            ${providers.map(p => `
+              <div class="provider-badge">
                 <img src="https://image.tmdb.org/t/p/w154${p.logo_path}" 
                      title="${p.provider_name}" 
-                     alt="${p.provider_name}" 
-                     class="provider-logo">
+                     alt="${p.provider_name}">
               </div>
-            `,
-              )
-              .join("")}
+            `).join("")}
           </div>
         </div>
       `;
     }
 
+    // Conteúdo Principal
     let htmlContent = `
         <div class="modal-header">
-            <img src="https://image.tmdb.org/t/p/w500${data.poster_path}" alt="${data.title || data.name}">
+            <img class="modal-poster" src="https://image.tmdb.org/t/p/w500${data.poster_path}" alt="${data.title || data.name}">
             <div class="modal-info">
                 <h2>${data.title || data.name}</h2>
-                <p><strong>Sinopse:</strong> ${data.overview || "Sem sinopse disponível."}</p>
-                <p><strong>Duração:</strong> ${data.runtime || (data.episode_run_time ? data.episode_run_time[0] : "--")} min</p>
-                <p><strong>Nota:</strong> ⭐ ${data.vote_average.toFixed(1)}</p>
+                <p class="overview"><strong>Sinopse:</strong> ${data.overview || "Sem sinopse disponível."}</p>
+                <div class="meta-info">
+                  <span><strong>Duração:</strong> ${data.runtime || (data.episode_run_time ? data.episode_run_time[0] : "--")} min</span>
+                  <span><strong>Nota:</strong> ⭐ ${data.vote_average.toFixed(1)}</span>
+                </div>
                 ${providersHtml} 
             </div>
         </div>
     `;
 
+    // Lógica das Temporadas
     if (type === "tv" && data.seasons) {
-      htmlContent += `<div class="seasons-container"><h3>Temporadas</h3><div class="seasons-list">`;
-      data.seasons.forEach((season) => {
-        if (season.season_number > 0) {
-          htmlContent += `
-              <div class="season-item">
-                   <span>${season.name} - </span>
-                   <small>${season.episode_count} episódios</small>
-              </div>
-          `;
-        }
-      });
-      htmlContent += `</div></div>`;
+      htmlContent += `
+        <div class="seasons-section">
+          <h3>Temporadas</h3>
+          <div class="seasons-grid">
+            ${data.seasons
+              .filter(s => s.season_number > 0)
+              .map(season => `
+                <div class="season-card">
+                   <span class="season-name">${season.name}</span>
+                   <span class="season-count">${season.episode_count} episódios</span>
+                </div>
+              `).join("")}
+          </div>
+        </div>
+      `;
     }
 
     modalBody.innerHTML = htmlContent;
@@ -139,7 +156,7 @@ function closeModal() {
   document.querySelector("#modal-overlay").style.display = "none";
 }
 
-document.querySelectorAll(".nav-links a").forEach((link) => {
+document.querySelectorAll("#nav-links a").forEach((link) => {
   link.addEventListener("click", (e) => {
     e.preventDefault();
     const type = e.currentTarget.getAttribute("data-type");
@@ -154,18 +171,3 @@ document.querySelector(".search-box input").addEventListener("input", (e) => {
 });
 
 loadContent("movie");
-
-const btn = document.querySelector("#btn-menu");
-const menuBar = document.getElementById("menu-bar");
-
-const icone = btn.querySelector("i");
-
-btn.addEventListener("click", () => {
-  menuBar.classList.toggle("show");
-
-  if (icone.classList.contains("fa-bars")) {
-    icone.classList.replace("fa-bars", "fa-xmark");
-  } else {
-    icone.classList.replace("fa-xmark", "fa-bars");
-  }
-});
