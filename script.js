@@ -36,6 +36,7 @@ async function loadContent(type = "movie") {
     const response = await fetch(url, options);
     const data = await response.json();
     renderGrid(data.results);
+    console.log(data);
   } catch (err) {
     console.error("Erro ao carregar:", err);
   }
@@ -82,12 +83,37 @@ function renderGrid(list) {
 }
 
 async function loadModal(id, type) {
-  const url = `https://api.themoviedb.org/3/${type}/${id}?language=pt-BR&append_to_response=watch/providers`;
+  // 1. Adicionamos 'videos' ao append_to_response
+  const url = `https://api.themoviedb.org/3/${type}/${id}?language=pt-BR&append_to_response=watch/providers,videos`;
 
   try {
     const response = await fetch(url, options);
     const data = await response.json();
     const modalBody = document.querySelector("#modal-body");
+
+    // 2. Lógica para encontrar o Trailer
+    // Prioriza trailers em português, se não houver, tenta qualquer trailer disponível
+    const videoData =
+      data.videos?.results.find(
+        (v) => v.type === "Trailer" && v.site === "YouTube",
+      ) || data.videos?.results.find((v) => v.site === "YouTube");
+
+    let videoHtml = "";
+    if (videoData) {
+      videoHtml = `
+    <div class="video-container">
+      <iframe 
+        src="https://www.youtube.com/embed/${videoData.key}?autoplay=1&mute=1&playlist=${videoData.key}&loop=1" 
+        frameborder="0" 
+        allow="autoplay; encrypted-media" 
+        allowfullscreen
+        class="modal-video">
+      </iframe>
+    </div>`;
+    } else {
+      // Fallback: se não houver vídeo, exibe o poster original
+      videoHtml = `<img class="modal-poster" src="https://image.tmdb.org/t/p/w500${data.poster_path}" alt="${data.title || data.name}">`;
+    }
 
     // Lógica dos Provedores (Streamings)
     const providers = data["watch/providers"]?.results?.BR?.flatrate;
@@ -98,22 +124,26 @@ async function loadModal(id, type) {
         <div class="providers-container">
           <p><strong>Disponível em:</strong></p>
           <div class="providers-list">
-            ${providers.map(p => `
+            ${providers
+              .map(
+                (p) => `
               <div class="provider-badge">
                 <img src="https://image.tmdb.org/t/p/w154${p.logo_path}" 
                      title="${p.provider_name}" 
                      alt="${p.provider_name}">
               </div>
-            `).join("")}
+            `,
+              )
+              .join("")}
           </div>
         </div>
       `;
     }
 
-    // Conteúdo Principal
+    // Conteúdo Principal (Usando a variável videoHtml definida acima)
     let htmlContent = `
-        <div class="modal-header">
-            <img class="modal-poster" src="https://image.tmdb.org/t/p/w500${data.poster_path}" alt="${data.title || data.name}">
+        <div class="modal-header-vertical">
+            ${videoHtml}
             <div class="modal-info">
                 <h2>${data.title || data.name}</h2>
                 <p class="overview"><strong>Sinopse:</strong> ${data.overview || "Sem sinopse disponível."}</p>
@@ -133,13 +163,16 @@ async function loadModal(id, type) {
           <h3>Temporadas</h3>
           <div class="seasons-grid">
             ${data.seasons
-              .filter(s => s.season_number > 0)
-              .map(season => `
+              .filter((s) => s.season_number > 0)
+              .map(
+                (season) => `
                 <div class="season-card">
-                   <span class="season-name">${season.name}</span>
-                   <span class="season-count">${season.episode_count} episódios</span>
+                    <span class="season-name">${season.name}</span>
+                    <span class="season-count">${season.episode_count} episódios</span>
                 </div>
-              `).join("")}
+              `,
+              )
+              .join("")}
           </div>
         </div>
       `;

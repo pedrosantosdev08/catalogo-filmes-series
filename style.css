@@ -344,6 +344,29 @@ body {
   }
 }
 
+.video-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* Proporção 16:9 */
+    height: 0;
+    margin-bottom: 20px;
+}
+
+.modal-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+}
+
+.provider-badge img {
+    width: 40px;
+    border-radius: 8px;
+    margin-right: 8px;
+}
+
 @media (max-width: 600px) {
   .modal-header {
     flex-direction: column;
